@@ -14,8 +14,8 @@ from os.path import isfile, join, exists
 
 #mongoPort = 27027
 #mongoPath = "localhost"
-api_token = "274555572:AAE2xT6KYo2s-2cAlHO0ZbwCwDc8_eQc8IM"
-baseFilePath = "/home/hirschag/BashiestBot/BotCode/userData"
+api_token = ""
+baseFilePath = "changeme"
 
 helloWorld = """#!/bin/bash
 # Welcome to BashiestBot, Please enjoy your stay
