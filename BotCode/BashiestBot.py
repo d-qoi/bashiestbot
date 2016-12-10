@@ -7,24 +7,26 @@
 import logging
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-#from time import sleep
 #from pymongo import MongoClient
 from os import listdir, mkdir, utime, remove
 from os.path import isfile, join, exists
+from configparser import ConfigParser
 
-#mongoPort = 27027
-#mongoPath = "localhost"
-api_token = ""
-baseFilePath = "changeme"
 
-helloWorld = """#!/bin/bash
-# Welcome to BashiestBot, Please enjoy your stay
-echo Hello World
-"""
+config = ConfigParser()
+config.read('bashiestbot.conf')
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
+logger.setLevel(int(config['general']['logging_level']))
+mongoPort = int(config['mongodb']['mongoPort'])
+mongoPath = config['mongodb']['mongoPath']
+api_token = config['telegram']['api_token']
+baseFilePath = config['telegram']['user_data']
+helloWorld = config['general']['hello_world']
+
+
 
 #dbClient = MongoClient(mongoPath, mongoPort)
 
