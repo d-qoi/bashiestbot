@@ -214,7 +214,10 @@ def realHelp(bot, update):
 /manpages
     Helpfull links about linux for the uninformed (one word only)
 
-If something doesn't seem to be working properly, then type /start to restart bot.''')
+/togglegeneric
+    toggle the generic command handler in group chats
+
+If something doesn't seem to be working properly, then type /start to restart botself.''')
 
 def helpme(bot, update, args):
     if args:
@@ -253,14 +256,21 @@ def handleGeneralComments(bot, update, chat_data):
     if update.message.chat.type == 'private':
         writeToFile(bot, update, chat_data)
     
-def handleGeneralCommands(bot,update):
+def handleGeneralCommands(bot,update, chat_data):
     if update.message.chat.type == 'group' or update.message.chat.type == 'supergroup':
-        logger.info('User "%s (%s)" in group "%s (%s)" sent %s' % (update.message.from_user.username, update.message.from_user.id, update.message.chat.title, update.message.chat.id, update.message.text))
-        if update.message.text[0:1] == '/':
-            if len(update.message.text.split(' ')) == 1:
-                update.message.reply_text("%s is now a %s" % (update.message.from_user.username, update.message.text[1:]))
-            else:
-                update.message.reply_text("%s turned %s into a %s" %(update.message.from_user.username, update.message.text.split(' ')[1], update.message.text.split(' ')[0][1:])) 
+        if chat_data['generic']:
+            logger.info('User "%s (%s)" in group "%s (%s)" sent %s' % (update.message.from_user.username, update.message.from_user.id, update.message.chat.title, update.message.chat.id, update.message.text))
+            if update.message.text[0:1] == '/':
+                if len(update.message.text.split(' ')) == 1:
+                    update.message.reply_text("%s is now a %s" % (update.message.from_user.username, update.message.text[1:]))
+                else:
+                    update.message.reply_text("%s turned %s into a %s" %(update.message.from_user.username, update.message.text.split(' ')[1], update.message.text.split(' ')[0][1:])) 
+
+def toggleGeneric(bot, update, chat_data):
+    chat_data['generic'] = not chat_data['generic']
+    update.message.reply_text("Generic Command Handling: %s" % (str(chat_data['generic'])))
+    logger.info('User "%s (%s)" in group "%s (%s)" toggled Generic Commands' % (update.message.from_user.username, update.message.from_user.id, update.message.chat.title, update.message.chat.id))
+
 
 def echoToConsol(bot, update):
     print(update.message)
@@ -296,6 +306,7 @@ def debugHelp(bot, update, chat_data):
 def addSelfToGroup(bot, update, chat_data):
     if update.message.new_chat_member.username == "bashiestbot" and (update.message.chat.type == 'group' or update.message.chat.type == 'supergroup'):
         logger.info("Bot was added to %s (%s)" % (update.message.chat.title, update.message.chat.id))
+        chat_data['generic'] = True
         start(bot, update, chat_data)
 
 def main():
@@ -326,10 +337,11 @@ def main():
     dp.add_handler(CommandHandler('start', start, pass_chat_data=True))
     dp.add_handler(CommandHandler('debug', debugHelp, pass_chat_data=True))
     dp.add_handler(CommandHandler('manpages', helpme, pass_args=True))
+    dp.add_handler(CommandHandler('togglegeneric', toggleGeneric, pass_chat_data=True))
 
     #other text commands
     dp.add_handler(MessageHandler(Filters.text, handleGeneralComments, pass_chat_data=True, allow_edited=False)) # this appears to only work in private messages, probably a good thing
-    dp.add_handler(MessageHandler(Filters.command, handleGeneralCommands))
+    dp.add_handler(MessageHandler(Filters.command, handleGeneralCommands, pass_chat_data=True))
     dp.add_handler(MessageHandler(Filters.status_update, addSelfToGroup, pass_chat_data=True))
     dp.add_error_handler(error)
 
