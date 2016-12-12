@@ -163,7 +163,8 @@ def start(bot, update, chat_data):
         with open(join(userDirectory, "start.sh"), 'w') as f:
             f.write(helloWorld)
     if 'selected_file' in chat_data:
-        reply = reply + "You currently have %s as your selected file.\n" % (chat_data['selected_file']) 
+        reply = reply + "You currently have %s as your selected file.\n" % (chat_data['selected_file'])
+    chat_data['generic'] = False
     update.message.reply_text(reply)
 
 def help(bot, update):
